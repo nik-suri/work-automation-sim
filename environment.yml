@@ -1,0 +1,9 @@
+name: ec3118
+channels:
+  - defaults
+dependencies:
+  - pandas
+  - xlrd
+  - openpyxl
+prefix: /Users/Nikhil/anaconda3/envs/ec3118
+
