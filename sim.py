@@ -36,8 +36,8 @@ def run_sim(time_steps):
     economy_model = {}
     for i in msa_employment_df.index:
         occ_code = msa_employment_df['OCC_CODE'][i]
-        current_job_employment = msa_employment_df['TOT_EMP'][i]
-        if occ_code in automation_p and current_job_employment != "**":
+        if occ_code in automation_p:
+            current_job_employment = msa_employment_df['TOT_EMP'][i]
             job_title = msa_employment_df['OCC_TITLE'][i]
             economy_model[occ_code] = {
                 'employed': current_job_employment,
