@@ -15,10 +15,10 @@ def main():
 
 def run_sim(time_steps):
     # read data
-    auto_susceptibility_df = pd.read_excel('automation_susceptibility.xlsx', sheet_name='Sheet1')
+    auto_susceptibility_df = pd.read_excel('clean_data_files/automation_susceptibility.xlsx', sheet_name='Sheet1')
     print(auto_susceptibility_df)
 
-    msa_employment_df = pd.read_excel('oesm18ma/MSA_M2018_dl.xlsx', sheet_name='SF_MSA')
+    msa_employment_df = pd.read_excel('clean_data_files/sf_employment.xlsx', sheet_name='Sheet1')
     print(msa_employment_df)
 
     # build models
