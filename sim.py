@@ -18,8 +18,19 @@ def run_sim(time_steps):
     auto_susceptibility_df = pd.read_excel('clean_data_files/automation_susceptibility.xlsx', sheet_name='Sheet1')
     print(auto_susceptibility_df)
 
-    msa_employment_df = pd.read_excel('clean_data_files/sf_employment.xlsx', sheet_name='Sheet1')
-    print(msa_employment_df)
+    employment_df = pd.read_excel('clean_data_files/sf_employment.xlsx', sheet_name='Sheet1')
+    print(employment_df)
+
+    employment_proj_df = pd.read_excel('clean_data_files/sf_employment_projections.xlsx', sheet_name='Sheet1')
+    print(employment_proj_df)
+
+    employment_full_df = employment_df.merge(employment_proj_df, left_on='OCC_CODE', right_on='SOC_CODE')
+    print(employment_full_df)
+
+    full_df = employment_full_df.merge(auto_susceptibility_df, left_on='OCC_CODE', right_on='SOC code')
+    print(full_df)
+
+    return
 
     # build models
 
