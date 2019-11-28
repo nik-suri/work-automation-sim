@@ -29,51 +29,32 @@ def run_sim(time_steps):
 
     full_df = employment_full_df.merge(auto_susceptibility_df, left_on='OCC_CODE', right_on='SOC code')
     print(full_df)
+    print(full_df.columns)
 
-    return
-
-    # build models
-
-    # keyed by job SOC code
-    # value is probability of automation
-    automation_p = {}
-    for i in auto_susceptibility_df.index:
-        soc_code = auto_susceptibility_df['SOC code'][i]
-        p = auto_susceptibility_df['Probability'][i]
-        automation_p[soc_code] = p
-
-    # keyed by job SOC code
-    # value is [current_employment, current_automation]
+    # model of economy which will change over time
     economy_model = {}
-    for i in msa_employment_df.index:
-        occ_code = msa_employment_df['OCC_CODE'][i]
-        if occ_code in automation_p:
-            current_job_employment = msa_employment_df['TOT_EMP'][i]
-            job_title = msa_employment_df['OCC_TITLE'][i]
-            economy_model[occ_code] = {
-                'employed': current_job_employment,
-                'automated': 0,
-                'title': job_title
-            }
-
-    # find keys in automation_p not in economy_model
-    delete_keys = []
-    for job in automation_p.keys():
-        if job not in economy_model:
-            delete_keys.append(job)
-
-    # delete keys in automation_p not in economy_model
-    for job in delete_keys:
-        del automation_p[job]
+    for i in full_df.index:
+        soc_code = full_df['OCC_CODE'][i]
+        starting_employment = full_df['TOT_EMP'][i]
+        job_title = full_df['OCC_TITLE'][i]
+        economy_model[soc_code] = {
+            'employed': starting_employment,
+            'automated': 0,
+            'title': job_title
+        }
 
     # run simulation
     for t in range(time_steps):
-        for job in automation_p.keys():
-            job_data = economy_model[job]
+        for i in full_df.index:
+            soc_code = full_df['OCC_CODE'][i]
+            automation_p = full_df['Probability'][i]
+            growth_rate = full_df['ANNUAL_MEAN_CHANGE'][i]
+
+            job_data = economy_model[soc_code]
             curr_econ_size, curr_automated = job_data['employed'], job_data['automated']
 
-            new_econ_size = round((1 + GROWTH_RATE) * curr_econ_size)
-            automated_conversion = round(automation_p[job] * AUTOMATION_RATE * new_econ_size)
+            new_econ_size = round((1 + growth_rate) * curr_econ_size)
+            automated_conversion = round(automation_p * AUTOMATION_RATE * new_econ_size)
             new_automated = curr_automated + automated_conversion
 
             job_data['employed'] = new_econ_size - automated_conversion

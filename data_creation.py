@@ -26,6 +26,7 @@ def main():
 # aggregate granular county projections into a mean metropolitan projection
 def aggregate_proj(*args):
     aggregate_df = pd.read_excel(CLEAN_REGIONAL_PREFIX + args[0])
+
     for i in range(1, len(args)):
         to_add_df = pd.read_excel(CLEAN_REGIONAL_PREFIX + args[i])
         aggregate_df = aggregate_df.merge(to_add_df, on='SOC_CODE')
