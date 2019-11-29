@@ -1,40 +1,53 @@
 import sys
 import pandas as pd
 
+VERBOSE_SEPARATOR = '-----------------------------------'
+
 # simulation parameters
-GROWTH_RATE = 0.1
 AUTOMATION_RATE = 0.2
 
 
 def main():
     args = read_command( sys.argv[1:] )
-    time_steps = args.time_steps
-
-    run_sim(time_steps)
+    run_sim(args.time_steps, args.verbose)
 
 
-def run_sim(time_steps):
+def run_sim(time_steps, verbose):
     # read data
-    auto_susceptibility_df = pd.read_excel('clean_data_files/automation_susceptibility.xlsx', sheet_name='Sheet1')
-    print(auto_susceptibility_df)
+    auto_susceptibility_df = pd.read_excel('clean_data_files/automation_susceptibility.xlsx')
+    if verbose:
+        print('AUTOMATION SUSCEPTIBILITY DATAFRAME')
+        print(auto_susceptibility_df)
+        print(VERBOSE_SEPARATOR)
 
-    employment_df = pd.read_excel('clean_data_files/sf_employment.xlsx', sheet_name='Sheet1')
-    print(employment_df)
+    employment_df = pd.read_excel('clean_data_files/sf_employment.xlsx')
+    if verbose:
+        print('EMPLOYMENT DATAFRAME')
+        print(employment_df)
+        print(VERBOSE_SEPARATOR)
 
-    employment_proj_df = pd.read_excel('clean_data_files/sf_employment_projections.xlsx', sheet_name='Sheet1')
-    print(employment_proj_df)
+    employment_proj_df = pd.read_excel('clean_data_files/sf_employment_projections.xlsx')
+    if verbose:
+        print('EMPLOYMENT PROJECTIONS DATAFRAME')
+        print(employment_proj_df)
+        print(VERBOSE_SEPARATOR)
 
-    employment_full_df = employment_df.merge(employment_proj_df, left_on='OCC_CODE', right_on='SOC_CODE')
-    print(employment_full_df)
+    employment_full_df = employment_df.merge(employment_proj_df, on='SOC_CODE')
+    if verbose:
+        print('FULL EMPLOYMENT DATAFRAME')
+        print(employment_full_df)
+        print(VERBOSE_SEPARATOR)
 
-    full_df = employment_full_df.merge(auto_susceptibility_df, left_on='OCC_CODE', right_on='SOC code')
-    print(full_df)
-    print(full_df.columns)
+    full_df = employment_full_df.merge(auto_susceptibility_df, on='SOC_CODE')
+    if verbose:
+        print('FULL SIMULATION DATAFRAME')
+        print(full_df)
+        print(VERBOSE_SEPARATOR)
 
     # model of economy which will change over time
     economy_model = {}
     for i in full_df.index:
-        soc_code = full_df['OCC_CODE'][i]
+        soc_code = full_df['SOC_CODE'][i]
         starting_employment = full_df['TOT_EMP'][i]
         job_title = full_df['OCC_TITLE'][i]
         economy_model[soc_code] = {
@@ -46,8 +59,8 @@ def run_sim(time_steps):
     # run simulation
     for t in range(time_steps):
         for i in full_df.index:
-            soc_code = full_df['OCC_CODE'][i]
-            automation_p = full_df['Probability'][i]
+            soc_code = full_df['SOC_CODE'][i]
+            automation_p = full_df['AUTO_PROB'][i]
             growth_rate = full_df['ANNUAL_MEAN_CHANGE'][i]
 
             job_data = economy_model[soc_code]
@@ -64,8 +77,8 @@ def run_sim(time_steps):
 
     # print output
     economy_df = pd.DataFrame(economy_model).T
-    economy_df.to_excel('output.xlsx', sheet_name='Sheet1')
-    print("final jobs after " + str(time_steps) + " time steps written to 'output.xlsx'")
+    economy_df.to_excel('sim_output.xlsx')
+    print("final jobs after " + str(time_steps) + " time steps written to 'sim_output.xlsx'")
 
 
 def read_command(argv):
@@ -78,6 +91,9 @@ def read_command(argv):
 
     parser.add_option('-t', '--time-steps', dest='time_steps', default=10, type='int',
                       help='time steps to run simulation for')
+    parser.add_option('-v', '--verbose', dest='verbose',
+                      default=False, action='store_true',
+                      help='run with verbose output')
 
     options, otherjunk = parser.parse_args(argv)
     if len(otherjunk) != 0:
