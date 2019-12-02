@@ -1,5 +1,5 @@
 class OutColors:
-    HEADER = '\033[95m' # pink
+    PURPLE = '\033[95m' # purple
     OKBLUE = '\033[34m'
     OKGREEN = '\033[32m'
     WARNING = '\033[33m' # orange
@@ -9,12 +9,12 @@ class OutColors:
     UNDERLINE = '\033[4m'
 
 OUTPUT_SEPARATOR = OutColors.OKBLUE + '-----------------------------------------------------' + OutColors.ENDC
-OUTPUT_SECTION_END = OutColors.HEADER + ('****************************************************************\n'
+OUTPUT_SECTION_END = OutColors.PURPLE + ('****************************************************************\n'
                                          '****************************************************************') + OutColors.ENDC
 OUTPUT_ERROR = OutColors.FAIL + '***************ERROR***************' + OutColors.ENDC
 
-def print_bold(boldMsg):
-    print(OutColors.BOLD + boldMsg + OutColors.ENDC)
+def print_header(msg):
+    print(OutColors.BOLD + OutColors.UNDERLINE + msg + OutColors.ENDC)
 
 def print_success(succMsg):
     print(OutColors.OKGREEN + succMsg + OutColors.ENDC)

@@ -18,7 +18,7 @@ def run_sim(msa_list, time_steps, verbose):
         print(OUTPUT_SEPARATOR)
 
     for msa in msa_list:
-        print_bold('SIMULATING ' + msa)
+        print_header('SIMULATING ' + msa)
 
         msa_filename = msa + '.xlsx'
         output_filename = OUTPUT_FILES + msa_filename
@@ -89,7 +89,7 @@ def run_sim(msa_list, time_steps, verbose):
         economy_df = pd.DataFrame(economy_model).T
         economy_df.to_excel(output_filename)
 
-        print('Final employment distributions after ' + str(time_steps) + ' time steps written to "' + output_filename + '"')
+        print_success('Final employment distributions after ' + str(time_steps) + ' time steps written to "' + output_filename + '"')
         print(OUTPUT_SECTION_END)
 
 
