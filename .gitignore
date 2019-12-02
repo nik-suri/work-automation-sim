@@ -1,3 +1,6 @@
 *.xlsx
 *.swp
+*.spec
 __pycache__/
+dist/
+build/
