@@ -12,7 +12,7 @@ def main():
     if args.clean_proj: clean_proj()
     if args.clean_emp: clean_emp()
 
-    print('finished data cleaning with params: ' + str(args))
+    printSuccess('Finished data cleaning with params: ' + str(args))
 
 
 def clean_prob():
@@ -22,7 +22,8 @@ def clean_prob():
     auto_sus_df = auto_sus_df.rename(columns={'SOC code': 'SOC_CODE', 'Probability': 'AUTO_PROB'})
     auto_sus_df.to_excel(CLEAN_FILES_LOC + 'automation_susceptibility.xlsx', index=False)
 
-    print('automation probabilities written to automation_susceptibility.xlsx')
+    printSuccess('Automation probabilities written to automation_susceptibility.xlsx')
+    print(OUTPUT_SECTION_END)
 
 
 def clean_proj():
@@ -30,10 +31,12 @@ def clean_proj():
         proj_files = CA_MSA_MAP[msa]
         clean_proj_files(proj_files)
         aggregate_proj(proj_files, msa)
-        print('Cleaned and aggregated projection data for ' + msa + ' in ' + msa + '.xlsx')
+
+        printSuccess('Cleaned and aggregated projection data for ' + msa + ' in "' + msa + '.xlsx"')
         print(OUTPUT_SEPARATOR)
 
-    print('CA employment projections cleaned and aggregated in ' + CLEAN_FILES_LOC + CLEAN_PROJECTIONS_LOC)
+    printSuccess('CA employment projections cleaned and aggregated in ' + CLEAN_FILES_LOC + CLEAN_PROJECTIONS_LOC)
+    print(OUTPUT_SECTION_END)
 
 
 def clean_emp():
@@ -43,18 +46,22 @@ def clean_emp():
         msa_filtered = msa_employment_df.query('AREA_NAME == "' + msa + '" and TOT_EMP != "**"')[['OCC_CODE', 'TOT_EMP', 'OCC_TITLE']]
         msa_cleaned = msa_filtered.rename(columns={'OCC_CODE': 'SOC_CODE'})
         msa_cleaned.to_excel(CLEAN_FILES_LOC + CLEAN_EMPLOYMENT_LOC + msa + '.xlsx', index=False)
-        print('Cleaned ' + msa + ' employment data in ' + msa + '.xlsx')
+
+        printSuccess('Cleaned ' + msa + ' employment data in ' + msa + '.xlsx')
         print(OUTPUT_SEPARATOR)
 
-    print('CA employment data extracted, cleaned, and written in ' + CLEAN_FILES_LOC + CLEAN_EMPLOYMENT_LOC)
+    printSuccess('CA employment data extracted, cleaned, and written in ' + CLEAN_FILES_LOC + CLEAN_EMPLOYMENT_LOC)
+    print(OUTPUT_SECTION_END)
 
 
 # aggregate granular county projections into a mean metropolitan statistical area (msa) projection
 def aggregate_proj(proj_files, out_filename):
-    aggregate_df = pd.read_excel(CLEAN_FILES_LOC + CLEAN_PROJECTIONS_LOC + CLEANED_PREFIX + proj_files[0])
+    aggregated_filename = CLEAN_FILES_LOC + CLEAN_PROJECTIONS_LOC + CLEAN_MSA_LOC + out_filename + '.xlsx'
+
+    aggregate_df = pd.read_excel(CLEAN_FILES_LOC + CLEAN_PROJECTIONS_LOC + CLEAN_REGIONAL_LOC + proj_files[0])
 
     for i in range(1, len(proj_files)):
-        to_add_df = pd.read_excel(CLEAN_FILES_LOC + CLEAN_PROJECTIONS_LOC + CLEANED_PREFIX + proj_files[i])
+        to_add_df = pd.read_excel(CLEAN_FILES_LOC + CLEAN_PROJECTIONS_LOC + CLEAN_REGIONAL_LOC + proj_files[i])
         aggregate_df = aggregate_df.merge(to_add_df, on='SOC_CODE')
         aggregate_df['ANNUAL_CHANGE'] = aggregate_df['ANNUAL_CHANGE_x'] + aggregate_df['ANNUAL_CHANGE_y']
         del aggregate_df['ANNUAL_CHANGE_x']
@@ -63,15 +70,15 @@ def aggregate_proj(proj_files, out_filename):
     aggregate_df['ANNUAL_MEAN_CHANGE'] = aggregate_df['ANNUAL_CHANGE'].div(len(proj_files))
     del aggregate_df['ANNUAL_CHANGE']
 
-    aggregate_df.to_excel(CLEAN_FILES_LOC + CLEAN_PROJECTIONS_LOC + out_filename + '.xlsx', index=False)
-    print('Aggregated ' + str(proj_files))
+    aggregate_df.to_excel(aggregated_filename, index=False)
+    printSuccess('Aggregated ' + str(proj_files))
 
 
 # clean California MSA local projection data excel files
 def clean_proj_files(proj_files):
     for filename in proj_files:
         raw_filename = RAW_FILES_LOC + RAW_PROJECTIONS_LOC + filename
-        clean_filename = CLEAN_FILES_LOC + CLEAN_PROJECTIONS_LOC + CLEANED_PREFIX + filename
+        clean_filename = CLEAN_FILES_LOC + CLEAN_PROJECTIONS_LOC + CLEAN_REGIONAL_LOC + filename
 
         raw_wb = load_workbook(filename=raw_filename)
         clean_wb = Workbook()
@@ -100,7 +107,7 @@ def clean_proj_files(proj_files):
         clean_ws['B1'] = 'ANNUAL_CHANGE'
 
         clean_wb.save(filename=clean_filename)
-        print('Cleaned ' + filename)
+        printSuccess('Cleaned ' + filename)
 
 
 def read_command(argv):

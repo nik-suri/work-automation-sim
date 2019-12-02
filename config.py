@@ -5,7 +5,8 @@ RAW_PROJECTIONS_LOC = 'alltb6/'
 CLEAN_FILES_LOC = 'clean_data_files/'
 CLEAN_EMPLOYMENT_LOC = 'employment/'
 CLEAN_PROJECTIONS_LOC = 'projections/'
-CLEANED_PREFIX = 'cleaned_'
+CLEAN_REGIONAL_LOC = 'regional/'
+CLEAN_MSA_LOC = 'msa/'
 
 CA_MSA_MAP = {
     'Bakersfield, CA': ['bake$OccProj.xlsx'],
