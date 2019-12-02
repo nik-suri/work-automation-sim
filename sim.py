@@ -3,9 +3,6 @@ import pandas as pd
 
 VERBOSE_SEPARATOR = '-----------------------------------'
 
-# simulation parameters
-AUTOMATION_RATE = 0.2
-
 
 def main():
     args = read_command( sys.argv[1:] )
@@ -67,7 +64,7 @@ def run_sim(time_steps, verbose):
             curr_econ_size, curr_automated = job_data['employed'], job_data['automated']
 
             new_econ_size = round((1 + growth_rate) * curr_econ_size)
-            automated_conversion = round(automation_p * AUTOMATION_RATE * new_econ_size)
+            automated_conversion = round(automation_p * new_econ_size)
             new_automated = curr_automated + automated_conversion
 
             job_data['employed'] = new_econ_size - automated_conversion
