@@ -2,8 +2,12 @@ import sys
 import pandas as pd
 from openpyxl import load_workbook, Workbook
 
-RAW_REGIONAL_PREFIX = 'raw_data_files/alltb6/'
-CLEAN_REGIONAL_PREFIX = 'clean_data_files/cleaned_'
+RAW_FILES_LOC = 'raw_data_files/'
+RAW_EMPLOYMENT_LOC = 'oesm18ma/'
+RAW_REGIONAL_LOC = 'alltb6/'
+
+CLEAN_FILES_LOC = 'clean_data_files/'
+CLEAN_PREFIX = 'cleaned_'
 
 def main():
     args = read_command( sys.argv[1:] )
@@ -17,10 +21,10 @@ def main():
 
 def clean_prob():
     # clean automation susceptibility datasheet
-    auto_sus_df = pd.read_excel('raw_data_files/frey_osborne_automation_susceptibility.xlsx')
+    auto_sus_df = pd.read_excel(RAW_FILES_LOC + 'frey_osborne_automation_susceptibility.xlsx')
     auto_sus_df = auto_sus_df[['Probability', 'SOC code']]
     auto_sus_df = auto_sus_df.rename(columns={'SOC code': 'SOC_CODE', 'Probability': 'AUTO_PROB'})
-    auto_sus_df.to_excel('clean_data_files/automation_susceptibility.xlsx', index=False)
+    auto_sus_df.to_excel(CLEAN_FILES_LOC + 'automation_susceptibility.xlsx', index=False)
 
     print('automation probabilities written to automation_susceptibility.xlsx')
 
@@ -33,25 +37,25 @@ def clean_proj():
 
     aggregate_proj('oak$OccProj.xlsx', 'sanf$OccProj.xlsx', 'sanrf$OccProj.xlsx')
 
-    print('projections cleaned and aggregated in clean_data_files/')
+    print('projections cleaned and aggregated in ' + CLEAN_FILES_LOC)
 
 
 def clean_emp():
     # clean employment data to SF employment
-    msa_employment_df = pd.read_excel('raw_data_files/oesm18ma/MSA_M2018_dl.xlsx')
+    msa_employment_df = pd.read_excel(RAW_FILES_LOC + RAW_EMPLOYMENT_LOC + 'MSA_M2018_dl.xlsx')
     msa_filtered = msa_employment_df.query('AREA_NAME == "San Francisco-Oakland-Hayward, CA" and TOT_EMP != "**"')[['OCC_CODE', 'TOT_EMP', 'OCC_TITLE']]
     msa_cleaned = msa_filtered.rename(columns={'OCC_CODE': 'SOC_CODE'})
-    msa_cleaned.to_excel('clean_data_files/sf_employment.xlsx', index=False)
+    msa_cleaned.to_excel(CLEAN_FILES_LOC + 'sf_employment.xlsx', index=False)
 
     print("employment data written to sf_employment.xlsx")
 
 
 # aggregate granular county projections into a mean metropolitan projection
 def aggregate_proj(*args):
-    aggregate_df = pd.read_excel(CLEAN_REGIONAL_PREFIX + args[0])
+    aggregate_df = pd.read_excel(CLEAN_FILES_LOC + CLEAN_PREFIX + args[0])
 
     for i in range(1, len(args)):
-        to_add_df = pd.read_excel(CLEAN_REGIONAL_PREFIX + args[i])
+        to_add_df = pd.read_excel(CLEAN_FILES_LOC + CLEAN_PREFIX + args[i])
         aggregate_df = aggregate_df.merge(to_add_df, on='SOC_CODE')
         aggregate_df['ANNUAL_CHANGE'] = aggregate_df['ANNUAL_CHANGE_x'] + aggregate_df['ANNUAL_CHANGE_y']
         del aggregate_df['ANNUAL_CHANGE_x']
@@ -60,14 +64,14 @@ def aggregate_proj(*args):
     aggregate_df['ANNUAL_MEAN_CHANGE'] = aggregate_df['ANNUAL_CHANGE'].div(len(args))
     del aggregate_df['ANNUAL_CHANGE']
 
-    aggregate_df.to_excel('clean_data_files/sf_employment_projections.xlsx', index=False)
+    aggregate_df.to_excel(CLEAN_FILES_LOC + 'sf_employment_projections.xlsx', index=False)
     print('aggregated ' + str(args))
 
 
 # clean local projection data excel files
 def clean_regional_proj_file(filename):
-    raw_filename = RAW_REGIONAL_PREFIX + filename
-    clean_filename = CLEAN_REGIONAL_PREFIX + filename
+    raw_filename = RAW_FILES_LOC + RAW_REGIONAL_LOC + filename
+    clean_filename = CLEAN_FILES_LOC + CLEAN_PREFIX + filename
 
     raw_wb = load_workbook(filename=raw_filename)
     clean_wb = Workbook()
