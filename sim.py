@@ -57,14 +57,21 @@ def run_sim(time_steps, verbose):
     for t in range(time_steps):
         for i in full_df.index:
             soc_code = full_df['SOC_CODE'][i]
-            automation_p = full_df['AUTO_PROB'][i]
             growth_rate = full_df['ANNUAL_MEAN_CHANGE'][i]
+
+            """
+            ASSUMPTION: THIS IS THE PROBABILITY THAT THE OCCUPATION WILL BE COMPLETELY AUTOMATED IN time_step YEARS
+            We will calculate a quadratic fit for this value to determine the number of jobs that should be converted after 1 year
+            """
+            automation_p = full_df['AUTO_PROB'][i]
+            adjusted_auto_p = (automation_p / time_steps ** 2) * t ** 2
+            print(adjusted_auto_p)
 
             job_data = economy_model[soc_code]
             curr_econ_size, curr_automated = job_data['employed'], job_data['automated']
 
             new_econ_size = round((1 + growth_rate) * curr_econ_size)
-            automated_conversion = round(automation_p * new_econ_size)
+            automated_conversion = round(adjusted_auto_p * new_econ_size)
             new_automated = curr_automated + automated_conversion
 
             job_data['employed'] = new_econ_size - automated_conversion
