@@ -1,7 +1,7 @@
 import sys
 import pandas as pd
-
-VERBOSE_SEPARATOR = '-----------------------------------'
+from config import *
+from util import *
 
 
 def main():
@@ -15,31 +15,31 @@ def run_sim(time_steps, verbose):
     if verbose:
         print('AUTOMATION SUSCEPTIBILITY DATAFRAME')
         print(auto_susceptibility_df)
-        print(VERBOSE_SEPARATOR)
+        print(OUTPUT_SEPARATOR)
 
     employment_df = pd.read_excel('clean_data_files/sf_employment.xlsx')
     if verbose:
         print('EMPLOYMENT DATAFRAME')
         print(employment_df)
-        print(VERBOSE_SEPARATOR)
+        print(OUTPUT_SEPARATOR)
 
     employment_proj_df = pd.read_excel('clean_data_files/sf_employment_projections.xlsx')
     if verbose:
         print('EMPLOYMENT PROJECTIONS DATAFRAME')
         print(employment_proj_df)
-        print(VERBOSE_SEPARATOR)
+        print(OUTPUT_SEPARATOR)
 
     employment_full_df = employment_df.merge(employment_proj_df, on='SOC_CODE')
     if verbose:
         print('FULL EMPLOYMENT DATAFRAME')
         print(employment_full_df)
-        print(VERBOSE_SEPARATOR)
+        print(OUTPUT_SEPARATOR)
 
     full_df = employment_full_df.merge(auto_susceptibility_df, on='SOC_CODE')
     if verbose:
         print('FULL SIMULATION DATAFRAME')
         print(full_df)
-        print(VERBOSE_SEPARATOR)
+        print(OUTPUT_SEPARATOR)
 
     # model of economy which will change over time
     economy_model = {}
@@ -60,12 +60,12 @@ def run_sim(time_steps, verbose):
             growth_rate = full_df['ANNUAL_MEAN_CHANGE'][i]
 
             """
-            ASSUMPTION: THIS IS THE PROBABILITY THAT THE OCCUPATION WILL BE COMPLETELY AUTOMATED IN time_step YEARS
-            We will calculate a quadratic fit for this value to determine the number of jobs that should be converted after 1 year
+            ASSUMPTION:
+            THIS IS THE PROBABILITY THAT THE OCCUPATION WILL BE COMPLETELY AUTOMATED IN time_step YEARS
+            We will calculate a quadratic fit for this value to determine the number of jobs that should be converted after each year
             """
             automation_p = full_df['AUTO_PROB'][i]
             adjusted_auto_p = (automation_p / time_steps ** 2) * t ** 2
-            print(adjusted_auto_p)
 
             job_data = economy_model[soc_code]
             curr_econ_size, curr_automated = job_data['employed'], job_data['automated']
@@ -77,12 +77,12 @@ def run_sim(time_steps, verbose):
             job_data['employed'] = new_econ_size - automated_conversion
             job_data['automated'] = new_automated
 
-        print("time step " + str(t) + " completed")
+        print("Time step " + str(t) + " completed")
 
     # print output
     economy_df = pd.DataFrame(economy_model).T
     economy_df.to_excel('sim_output.xlsx')
-    print("final jobs after " + str(time_steps) + " time steps written to 'sim_output.xlsx'")
+    print("Final employment distributions after " + str(time_steps) + " time steps written to sim_output.xlsx")
 
 
 def read_command(argv):
