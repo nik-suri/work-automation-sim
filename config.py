@@ -1,14 +1,14 @@
-RAW_FILES_LOC = 'raw_data_files/'
-RAW_EMPLOYMENT_LOC = 'oesm18ma/'
-RAW_PROJECTIONS_LOC = 'alltb6/'
+RAW_FILES = 'raw_data_files/'
+RAW_EMPLOYMENT = 'oesm18ma/'
+RAW_PROJECTIONS = 'alltb6/'
 
-CLEAN_FILES_LOC = 'clean_data_files/'
-CLEAN_EMPLOYMENT_LOC = 'employment/'
-CLEAN_PROJECTIONS_LOC = 'projections/'
-CLEAN_REGIONAL_LOC = 'regional/'
-CLEAN_MSA_LOC = 'msa/'
+CLEAN_FILES = 'clean_data_files/'
+CLEAN_EMPLOYMENT = 'employment/'
+CLEAN_PROJECTIONS = 'projections/'
+CLEAN_PROJECTIONS_REGIONAL = 'regional/'
+CLEAN_PROJECTIONS_MSA = 'msa/'
 
-OUTPUT_FILES_LOC = 'sim_outputs/'
+OUTPUT_FILES = 'sim_outputs/'
 
 CA_MSA_MAP = {
     'Bakersfield, CA': ['bake$OccProj.xlsx'],

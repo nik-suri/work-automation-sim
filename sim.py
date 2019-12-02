@@ -11,24 +11,25 @@ def main():
 
 
 def run_sim(msa_list, time_steps, verbose):
-    # read data
-    auto_susceptibility_df = pd.read_excel('clean_data_files/automation_susceptibility.xlsx')
+    auto_susceptibility_df = pd.read_excel(CLEAN_FILES + 'automation_susceptibility.xlsx')
     if verbose:
         print('AUTOMATION SUSCEPTIBILITY DATAFRAME')
         print(auto_susceptibility_df)
         print(OUTPUT_SEPARATOR)
 
     for msa in msa_list:
-        printBold('SIMULATING ' + msa)
-        output_filename = OUTPUT_FILES_LOC + msa + '.xlsx'
+        print_bold('SIMULATING ' + msa)
 
-        employment_df = pd.read_excel(CLEAN_FILES_LOC + CLEAN_EMPLOYMENT_LOC + msa + '.xlsx')
+        msa_filename = msa + '.xlsx'
+        output_filename = OUTPUT_FILES + msa_filename
+
+        employment_df = pd.read_excel(CLEAN_FILES + CLEAN_EMPLOYMENT + msa_filename)
         if verbose:
             print('EMPLOYMENT DATAFRAME')
             print(employment_df)
             print(OUTPUT_SEPARATOR)
 
-        employment_proj_df = pd.read_excel(CLEAN_FILES_LOC + CLEAN_PROJECTIONS_LOC + CLEAN_MSA_LOC + msa + '.xlsx')
+        employment_proj_df = pd.read_excel(CLEAN_FILES + CLEAN_PROJECTIONS + CLEAN_PROJECTIONS_MSA + msa_filename)
         if verbose:
             print('EMPLOYMENT PROJECTIONS DATAFRAME')
             print(employment_proj_df)
@@ -94,7 +95,7 @@ def run_sim(msa_list, time_steps, verbose):
 
 def read_command():
     """
-    Read command line options.
+    Read command line arguments.
     """
     from argparse import ArgumentParser
 
@@ -117,7 +118,7 @@ def read_command():
         parser.error('Must specify which MSAs to simulate or pass the --all flag')
 
     if len(args.MSAs) != 0 and args.run_all:
-        printWarning('Running script with flag --all. Ignoring any positional MSA arguments.')
+        print_warning('Running script with flag --all. Ignoring any positional MSA arguments.')
 
     return args
 
