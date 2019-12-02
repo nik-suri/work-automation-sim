@@ -13,8 +13,14 @@ OUTPUT_SECTION_END = OutColors.HEADER + ('**************************************
                                          '****************************************************************') + OutColors.ENDC
 OUTPUT_ERROR = OutColors.FAIL + '***************ERROR***************' + OutColors.ENDC
 
+def printBold(boldMsg):
+    print(OutColors.BOLD + boldMsg + OutColors.ENDC)
+
 def printSuccess(succMsg):
     print(OutColors.OKGREEN + succMsg + OutColors.ENDC)
+
+def printWarning(warnMsg):
+    print(OutColors.WARNING + warnMsg + OutColors.ENDC)
 
 def printErr(errMsg):
     print(OutColors.FAIL + errMsg + OutColors.ENDC)

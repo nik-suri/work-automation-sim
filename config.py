@@ -8,6 +8,8 @@ CLEAN_PROJECTIONS_LOC = 'projections/'
 CLEAN_REGIONAL_LOC = 'regional/'
 CLEAN_MSA_LOC = 'msa/'
 
+OUTPUT_FILES_LOC = 'sim_outputs/'
+
 CA_MSA_MAP = {
     'Bakersfield, CA': ['bake$OccProj.xlsx'],
     'Chico, CA': ['chic$OccProj.xlsx'],

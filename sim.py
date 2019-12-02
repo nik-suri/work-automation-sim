@@ -5,11 +5,12 @@ from util import *
 
 
 def main():
-    args = read_command( sys.argv[1:] )
-    run_sim(args.time_steps, args.verbose)
+    args = read_command()
+    msa_list = CA_MSA_MAP.keys() if args.run_all else args.MSAs
+    run_sim(msa_list, args.time_steps, args.verbose)
 
 
-def run_sim(time_steps, verbose):
+def run_sim(msa_list, time_steps, verbose):
     # read data
     auto_susceptibility_df = pd.read_excel('clean_data_files/automation_susceptibility.xlsx')
     if verbose:
@@ -17,93 +18,108 @@ def run_sim(time_steps, verbose):
         print(auto_susceptibility_df)
         print(OUTPUT_SEPARATOR)
 
-    employment_df = pd.read_excel('clean_data_files/sf_employment.xlsx')
-    if verbose:
-        print('EMPLOYMENT DATAFRAME')
-        print(employment_df)
-        print(OUTPUT_SEPARATOR)
+    for msa in msa_list:
+        printBold('SIMULATING ' + msa)
+        output_filename = OUTPUT_FILES_LOC + msa + '.xlsx'
 
-    employment_proj_df = pd.read_excel('clean_data_files/sf_employment_projections.xlsx')
-    if verbose:
-        print('EMPLOYMENT PROJECTIONS DATAFRAME')
-        print(employment_proj_df)
-        print(OUTPUT_SEPARATOR)
+        employment_df = pd.read_excel(CLEAN_FILES_LOC + CLEAN_EMPLOYMENT_LOC + msa + '.xlsx')
+        if verbose:
+            print('EMPLOYMENT DATAFRAME')
+            print(employment_df)
+            print(OUTPUT_SEPARATOR)
 
-    employment_full_df = employment_df.merge(employment_proj_df, on='SOC_CODE')
-    if verbose:
-        print('FULL EMPLOYMENT DATAFRAME')
-        print(employment_full_df)
-        print(OUTPUT_SEPARATOR)
+        employment_proj_df = pd.read_excel(CLEAN_FILES_LOC + CLEAN_PROJECTIONS_LOC + CLEAN_MSA_LOC + msa + '.xlsx')
+        if verbose:
+            print('EMPLOYMENT PROJECTIONS DATAFRAME')
+            print(employment_proj_df)
+            print(OUTPUT_SEPARATOR)
 
-    full_df = employment_full_df.merge(auto_susceptibility_df, on='SOC_CODE')
-    if verbose:
-        print('FULL SIMULATION DATAFRAME')
-        print(full_df)
-        print(OUTPUT_SEPARATOR)
+        employment_full_df = employment_df.merge(employment_proj_df, on='SOC_CODE')
+        if verbose:
+            print('FULL EMPLOYMENT DATAFRAME')
+            print(employment_full_df)
+            print(OUTPUT_SEPARATOR)
 
-    # model of economy which will change over time
-    economy_model = {}
-    for i in full_df.index:
-        soc_code = full_df['SOC_CODE'][i]
-        starting_employment = full_df['TOT_EMP'][i]
-        job_title = full_df['OCC_TITLE'][i]
-        economy_model[soc_code] = {
-            'employed': starting_employment,
-            'automated': 0,
-            'title': job_title
-        }
+        full_df = employment_full_df.merge(auto_susceptibility_df, on='SOC_CODE')
+        if verbose:
+            print('FULL SIMULATION DATAFRAME')
+            print(full_df)
+            print(OUTPUT_SEPARATOR)
 
-    # run simulation
-    for t in range(time_steps):
+        # model of economy which will change over time
+        economy_model = {}
         for i in full_df.index:
             soc_code = full_df['SOC_CODE'][i]
-            growth_rate = full_df['ANNUAL_MEAN_CHANGE'][i]
+            starting_employment = full_df['TOT_EMP'][i]
+            job_title = full_df['OCC_TITLE'][i]
+            economy_model[soc_code] = {
+                'employed': starting_employment,
+                'automated': 0,
+                'title': job_title
+            }
 
-            """
-            ASSUMPTION:
-            THIS IS THE PROBABILITY THAT THE OCCUPATION WILL BE COMPLETELY AUTOMATED IN time_step YEARS
-            We will calculate a quadratic fit for this value to determine the number of jobs that should be converted after each year
-            """
-            automation_p = full_df['AUTO_PROB'][i]
-            adjusted_auto_p = (automation_p / time_steps ** 2) * t ** 2
+        # run simulation
+        for t in range(time_steps):
+            for i in full_df.index:
+                soc_code = full_df['SOC_CODE'][i]
+                growth_rate = full_df['ANNUAL_MEAN_CHANGE'][i]
 
-            job_data = economy_model[soc_code]
-            curr_econ_size, curr_automated = job_data['employed'], job_data['automated']
+                """
+                ASSUMPTION:
+                THIS IS THE PROBABILITY THAT THE OCCUPATION WILL BE COMPLETELY AUTOMATED IN time_step YEARS
+                We will calculate a quadratic fit for this value to determine the number of jobs that should be converted after each year
+                """
+                automation_p = full_df['AUTO_PROB'][i]
+                adjusted_auto_p = (automation_p / time_steps ** 2) * t ** 2
 
-            new_econ_size = round((1 + growth_rate) * curr_econ_size)
-            automated_conversion = round(adjusted_auto_p * new_econ_size)
-            new_automated = curr_automated + automated_conversion
+                job_data = economy_model[soc_code]
+                curr_econ_size, curr_automated = job_data['employed'], job_data['automated']
 
-            job_data['employed'] = new_econ_size - automated_conversion
-            job_data['automated'] = new_automated
+                new_econ_size = round((1 + growth_rate) * curr_econ_size)
+                automated_conversion = round(adjusted_auto_p * new_econ_size)
+                new_automated = curr_automated + automated_conversion
 
-        print("Time step " + str(t) + " completed")
+                job_data['employed'] = new_econ_size - automated_conversion
+                job_data['automated'] = new_automated
 
-    # print output
-    economy_df = pd.DataFrame(economy_model).T
-    economy_df.to_excel('sim_output.xlsx')
-    print("Final employment distributions after " + str(time_steps) + " time steps written to sim_output.xlsx")
+            print("Time step " + str(t) + " completed")
+
+        # print output
+        economy_df = pd.DataFrame(economy_model).T
+        economy_df.to_excel(output_filename)
+
+        print('Final employment distributions after ' + str(time_steps) + ' time steps written to "' + output_filename + '"')
+        print(OUTPUT_SECTION_END)
 
 
-def read_command(argv):
+def read_command():
     """
     Read command line options.
     """
-    from optparse import OptionParser
+    from argparse import ArgumentParser
 
-    parser = OptionParser()
+    parser = ArgumentParser(description='Run a simulation.')
 
-    parser.add_option('-t', '--time-steps', dest='time_steps', default=10, type='int',
-                      help='time steps to run simulation for')
-    parser.add_option('-v', '--verbose', dest='verbose',
-                      default=False, action='store_true',
-                      help='run with verbose output')
+    parser.add_argument('MSAs', metavar='MSA', nargs='*',
+                        help='an MSA (metropolitan statistical area) to compute employment/automation for')
+    parser.add_argument('-a', '--all', dest='run_all',
+                        default=False, action='store_true',
+                        help='run the simulation for all MSAs')
+    parser.add_argument('-t', '--time-steps', dest='time_steps', default=10, type=int,
+                        help='time steps to run simulation for')
+    parser.add_argument('-v', '--verbose', dest='verbose',
+                        default=False, action='store_true',
+                        help='run with verbose output')
 
-    options, otherjunk = parser.parse_args(argv)
-    if len(otherjunk) != 0:
-        raise Exception('Command line input not understood: ' + str(otherjunk))
+    args = parser.parse_args()
 
-    return options
+    if len(args.MSAs) == 0 and not args.run_all:
+        parser.error('Must specify which MSAs to simulate or pass the --all flag')
+
+    if len(args.MSAs) != 0 and args.run_all:
+        printWarning('Running script with flag --all. Ignoring any positional MSA arguments.')
+
+    return args
 
 
 if __name__ == "__main__":
