@@ -3,14 +3,17 @@ import pandas as pd
 from config import *
 from util import *
 
+# simulation parameters
+TIME_STEPS = 10
+
 
 def main():
     args = read_command()
     msa_list = CA_MSA_MAP.keys() if args.run_all else args.MSAs
-    run_sim(msa_list, args.time_steps, args.verbose)
+    run_sim(msa_list, args.verbose)
 
 
-def run_sim(msa_list, time_steps, verbose):
+def run_sim(msa_list, verbose):
     for msa in msa_list:
         msa_filename = msa + '.xlsx'
         merged_filename = CLEAN_FILES + CLEAN_MERGED + msa_filename
@@ -35,7 +38,7 @@ def run_sim(msa_list, time_steps, verbose):
             }
 
         # run simulation
-        for t in range(time_steps):
+        for t in range(TIME_STEPS):
             for i in msa_df.index:
                 soc_code = msa_df['SOC_CODE'][i]
                 growth_rate = msa_df['ANNUAL_MEAN_CHANGE'][i]
@@ -46,7 +49,7 @@ def run_sim(msa_list, time_steps, verbose):
                 We will calculate a quadratic fit for this value to determine the number of jobs that should be converted after each year
                 """
                 automation_p = msa_df['AUTO_PROB'][i]
-                adjusted_auto_p = (automation_p / time_steps ** 2) * t ** 2
+                adjusted_auto_p = (automation_p / TIME_STEPS ** 2) * t ** 2
 
                 job_data = economy_model[soc_code]
                 employed_key, automated_key = 'employed-' + str(t), 'automated-' + str(t)
@@ -66,7 +69,7 @@ def run_sim(msa_list, time_steps, verbose):
         economy_df = pd.DataFrame(economy_model).T
         economy_df.to_excel(output_filename)
 
-        print_success('Final employment distributions after ' + str(time_steps) + ' time steps written to "' + output_filename + '"')
+        print_success('Final employment distributions after ' + str(TIME_STEPS) + ' time steps written to "' + output_filename + '"')
         print(OUTPUT_SECTION_END)
 
 
@@ -83,8 +86,6 @@ def read_command():
     parser.add_argument('-a', '--all', dest='run_all',
                         default=False, action='store_true',
                         help='run the simulation for all MSAs')
-    parser.add_argument('-t', '--time-steps', dest='time_steps', default=10, type=int,
-                        help='time steps to run simulation for')
     parser.add_argument('-v', '--verbose', dest='verbose',
                         default=False, action='store_true',
                         help='run with verbose output')
