@@ -29,9 +29,9 @@ def run_sim(msa_list, time_steps, verbose):
             starting_employment = msa_df['TOT_EMP'][i]
             job_title = msa_df['OCC_TITLE'][i]
             economy_model[soc_code] = {
-                'employed': starting_employment,
-                'automated': 0,
-                'title': job_title
+                'title': job_title,
+                'employed-0': starting_employment,
+                'automated-0': 0
             }
 
         # run simulation
@@ -49,14 +49,16 @@ def run_sim(msa_list, time_steps, verbose):
                 adjusted_auto_p = (automation_p / time_steps ** 2) * t ** 2
 
                 job_data = economy_model[soc_code]
-                curr_econ_size, curr_automated = job_data['employed'], job_data['automated']
+                employed_key, automated_key = 'employed-' + str(t), 'automated-' + str(t)
+                curr_econ_size, curr_automated = job_data[employed_key], job_data[automated_key]
 
                 new_econ_size = round((1 + growth_rate) * curr_econ_size)
                 automated_conversion = round(adjusted_auto_p * new_econ_size)
                 new_automated = curr_automated + automated_conversion
 
-                job_data['employed'] = new_econ_size - automated_conversion
-                job_data['automated'] = new_automated
+                next_employed_key, next_automated_key = 'employed-' + str(t + 1), 'automated-' + str(t + 1)
+                job_data[next_employed_key] = new_econ_size - automated_conversion
+                job_data[next_automated_key] = new_automated
 
             print("Time step " + str(t) + " completed")
 
