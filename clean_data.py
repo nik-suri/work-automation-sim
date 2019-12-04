@@ -41,8 +41,8 @@ def clean_proj():
 
 def clean_emp():
     # clean employment data
+    msa_employment_df = pd.read_excel(RAW_FILES + RAW_EMPLOYMENT + 'MSA_M2018_dl.xlsx')
     for msa in CA_MSA_MAP.keys():
-        msa_employment_df = pd.read_excel(RAW_FILES + RAW_EMPLOYMENT + 'MSA_M2018_dl.xlsx')
         msa_filtered = msa_employment_df.query('AREA_NAME == "' + msa + '" and TOT_EMP != "**"')[['OCC_CODE', 'TOT_EMP', 'OCC_TITLE']]
         msa_cleaned = msa_filtered.rename(columns={'OCC_CODE': 'SOC_CODE'})
         msa_cleaned.to_excel(CLEAN_FILES + CLEAN_EMPLOYMENT + msa + '.xlsx', index=False)
