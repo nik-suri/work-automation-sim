@@ -7,6 +7,7 @@ CLEAN_EMPLOYMENT = 'employment/'
 CLEAN_PROJECTIONS = 'projections/'
 CLEAN_PROJECTIONS_REGIONAL = 'regional/'
 CLEAN_PROJECTIONS_MSA = 'msa/'
+CLEAN_MERGED = 'merged/'
 
 OUTPUT_FILES = 'sim_outputs/'
 

@@ -11,48 +11,23 @@ def main():
 
 
 def run_sim(msa_list, time_steps, verbose):
-    auto_susceptibility_df = pd.read_excel(CLEAN_FILES + 'automation_susceptibility.xlsx')
-    if verbose:
-        print('AUTOMATION SUSCEPTIBILITY DATAFRAME')
-        print(auto_susceptibility_df)
-        print(OUTPUT_SEPARATOR)
-
     for msa in msa_list:
-        print_header('SIMULATING ' + msa)
-
         msa_filename = msa + '.xlsx'
+        merged_filename = CLEAN_FILES + CLEAN_MERGED + msa_filename
         output_filename = OUTPUT_FILES + msa_filename
 
-        employment_df = pd.read_excel(CLEAN_FILES + CLEAN_EMPLOYMENT + msa_filename)
+        msa_df = pd.read_excel(merged_filename)
         if verbose:
-            print('EMPLOYMENT DATAFRAME')
-            print(employment_df)
-            print(OUTPUT_SEPARATOR)
-
-        employment_proj_df = pd.read_excel(CLEAN_FILES + CLEAN_PROJECTIONS + CLEAN_PROJECTIONS_MSA + msa_filename)
-        if verbose:
-            print('EMPLOYMENT PROJECTIONS DATAFRAME')
-            print(employment_proj_df)
-            print(OUTPUT_SEPARATOR)
-
-        employment_full_df = employment_df.merge(employment_proj_df, on='SOC_CODE')
-        if verbose:
-            print('FULL EMPLOYMENT DATAFRAME')
-            print(employment_full_df)
-            print(OUTPUT_SEPARATOR)
-
-        full_df = employment_full_df.merge(auto_susceptibility_df, on='SOC_CODE')
-        if verbose:
-            print('FULL SIMULATION DATAFRAME')
-            print(full_df)
+            print('DATAFRAME FOR ' + msa)
+            print(msa_df)
             print(OUTPUT_SEPARATOR)
 
         # model of economy which will change over time
         economy_model = {}
-        for i in full_df.index:
-            soc_code = full_df['SOC_CODE'][i]
-            starting_employment = full_df['TOT_EMP'][i]
-            job_title = full_df['OCC_TITLE'][i]
+        for i in msa_df.index:
+            soc_code = msa_df['SOC_CODE'][i]
+            starting_employment = msa_df['TOT_EMP'][i]
+            job_title = msa_df['OCC_TITLE'][i]
             economy_model[soc_code] = {
                 'employed': starting_employment,
                 'automated': 0,
@@ -61,16 +36,16 @@ def run_sim(msa_list, time_steps, verbose):
 
         # run simulation
         for t in range(time_steps):
-            for i in full_df.index:
-                soc_code = full_df['SOC_CODE'][i]
-                growth_rate = full_df['ANNUAL_MEAN_CHANGE'][i]
+            for i in msa_df.index:
+                soc_code = msa_df['SOC_CODE'][i]
+                growth_rate = msa_df['ANNUAL_MEAN_CHANGE'][i]
 
                 """
                 ASSUMPTION:
                 THIS IS THE PROBABILITY THAT THE OCCUPATION WILL BE COMPLETELY AUTOMATED IN time_step YEARS
                 We will calculate a quadratic fit for this value to determine the number of jobs that should be converted after each year
                 """
-                automation_p = full_df['AUTO_PROB'][i]
+                automation_p = msa_df['AUTO_PROB'][i]
                 adjusted_auto_p = (automation_p / time_steps ** 2) * t ** 2
 
                 job_data = economy_model[soc_code]
