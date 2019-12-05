@@ -1,6 +1,5 @@
 import sys
 import pandas as pd
-from progress.bar import Bar
 from openpyxl import load_workbook, Workbook
 from config import *
 from util import *
@@ -29,7 +28,7 @@ def main():
 
 
 def clean_nat_proj():
-    progress_bar = Bar('Projections', max=3, suffix='%(percent)d%%')
+    progress_bar = PercentBar('Projections', max=3)
 
     raw_wb = load_workbook(filename=RAW_PROJECTIONS_NAT)
     clean_wb = Workbook()
@@ -62,7 +61,7 @@ def clean_nat_proj():
 
 
 def clean_nat_emp():
-    progress_bar = Bar('Employment', max=3, suffix='%(percent)d%%')
+    progress_bar = PercentBar('Employment', max=3)
 
     # clean employment data
     msa_employment_df = pd.read_excel(RAW_EMPLOYMENT_NAT)
@@ -79,7 +78,7 @@ def clean_nat_emp():
 
 
 def merge_nat():
-    progress_bar = Bar('Merging data', max=5, suffix='%(percent)d%%')
+    progress_bar = PercentBar('Merging data', max=5)
 
     auto_susceptibility_df = pd.read_excel(CLEAN_FREY_OSBORNE)
     progress_bar.next()
@@ -106,7 +105,7 @@ def merge_reg():
     auto_susceptibility_df = pd.read_excel(CLEAN_FREY_OSBORNE)
 
     for msa in CA_MSA_MAP.keys():
-        progress_bar = Bar(msa, max=4, suffix='%(percent)d%%')
+        progress_bar = PercentBar(msa, max=4)
 
         msa_filename = msa + '.xlsx'
         merged_filename = CLEAN_MERGED_MSA + msa_filename
@@ -130,7 +129,7 @@ def merge_reg():
 
 
 def clean_prob():
-    progress_bar = Bar('Cleaning occupational automation probabilities', max=3, suffix='%(percent)d%%')
+    progress_bar = PercentBar('Cleaning occupational automation probabilities', max=3)
 
     # clean automation susceptibility datasheet
     auto_sus_df = pd.read_excel(RAW_FREY_OSBORNE)
@@ -151,7 +150,7 @@ def clean_reg_proj():
 
     for msa in CA_MSA_MAP.keys():
         proj_files = CA_MSA_MAP[msa]
-        progress_bar = Bar(', '.join(proj_files), max=2*len(proj_files), suffix='%(percent)d%%')
+        progress_bar = PercentBar(', '.join(proj_files), max=2*len(proj_files))
         clean_reg_(proj_files, progress_bar)
         aggregate_reg_(proj_files, msa, progress_bar)
         progress_bar.finish()
@@ -166,7 +165,7 @@ def clean_reg_emp():
     # clean employment data
     msa_employment_df = pd.read_excel(RAW_EMPLOYMENT_MSA)
     for msa in CA_MSA_MAP.keys():
-        progress_bar = Bar(msa, max=4, suffix='%(percent)d%%')
+        progress_bar = PercentBar(msa, max=4)
 
         clean_filename = CLEAN_EMPLOYMENT_MSA + msa + '.xlsx'
         progress_bar.next()

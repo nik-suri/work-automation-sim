@@ -1,3 +1,5 @@
+from progress.bar import Bar
+
 class OutColors:
     PURPLE = '\033[95m' # purple
     OKBLUE = '\033[34m'
@@ -22,3 +24,6 @@ def print_warning(warnMsg):
 
 def print_err(errMsg):
     print(OutColors.FAIL + errMsg + OutColors.ENDC)
+
+class PercentBar(Bar):
+    suffix='%(percent)d%%'

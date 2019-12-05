@@ -1,6 +1,5 @@
 import sys
 import pandas as pd
-from progress.bar import Bar
 from config import *
 from util import *
 
@@ -17,7 +16,7 @@ def main():
 
 def run_sim(input_filename, output_filename, display):
     df = pd.read_excel(input_filename)
-    progress_bar = Bar(display, max=1+len(df.index), suffix='%(percent)d%%')
+    progress_bar = PercentBar(display, max=1+len(df.index))
 
     # model of economy which will change over time
     economy_model = {}
