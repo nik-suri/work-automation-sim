@@ -8,9 +8,7 @@ class OutColors:
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
 
-OUTPUT_SEPARATOR = OutColors.OKBLUE + '-----------------------------------------------------' + OutColors.ENDC
-OUTPUT_SECTION_END = OutColors.PURPLE + ('****************************************************************\n'
-                                         '****************************************************************') + OutColors.ENDC
+OUTPUT_SEPARATOR = OutColors.PURPLE + '*****************************************************' + OutColors.ENDC
 OUTPUT_ERROR = OutColors.FAIL + '***************ERROR***************' + OutColors.ENDC
 
 def print_header(msg):
