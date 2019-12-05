@@ -1,5 +1,6 @@
 import sys
 import pandas as pd
+from progress.bar import Bar
 from config import *
 from util import *
 
@@ -10,22 +11,18 @@ TIME_STEPS = 10
 def main():
     args = read_command()
     msa_list = CA_MSA_MAP.keys() if args.run_all else args.MSAs
-    run_sim(msa_list, args.verbose)
+    run_sim(msa_list)
 
 
-def run_sim(msa_list, verbose):
+def run_sim(msa_list):
+    print_header('Simulating MSA occupations')
+
     for msa in msa_list:
-        print_header('Simulating ' + msa)
-
         msa_filename = msa + '.xlsx'
         merged_filename = CLEAN_FILES + CLEAN_MERGED + msa_filename
         output_filename = OUTPUT_FILES + msa_filename
 
         msa_df = pd.read_excel(merged_filename)
-        if verbose:
-            print('DATAFRAME FOR ' + msa)
-            print(msa_df)
-            print(OUTPUT_SEPARATOR)
 
         # model of economy which will change over time
         economy_model = {}
@@ -39,18 +36,18 @@ def run_sim(msa_list, verbose):
                 'automated-0': 0
             }
 
+        progress_bar = Bar(msa, max=len(msa_df.index))
         # run simulation
-        for t in range(TIME_STEPS):
-            for i in msa_df.index:
-                soc_code = msa_df['SOC_CODE'][i]
-                growth_rate = msa_df['ANNUAL_MEAN_CHANGE'][i]
-
+        for i in msa_df.index: # for every job
+            soc_code = msa_df['SOC_CODE'][i]
+            growth_rate = msa_df['ANNUAL_MEAN_CHANGE'][i]
+            automation_p = msa_df['AUTO_PROB'][i]
+            for t in range(TIME_STEPS): # calculate every time step
                 """
                 ASSUMPTION:
                 THIS IS THE PROBABILITY THAT THE OCCUPATION WILL BE COMPLETELY AUTOMATED IN time_step YEARS
                 We will calculate a quadratic fit for this value to determine the number of jobs that should be converted after each year
                 """
-                automation_p = msa_df['AUTO_PROB'][i]
                 adjusted_auto_p = (automation_p / TIME_STEPS ** 2) * t ** 2
 
                 job_data = economy_model[soc_code]
@@ -64,14 +61,13 @@ def run_sim(msa_list, verbose):
                 job_data[next_employed_key] = new_demand - automated_conversion
                 job_data[next_automated_key] = automated_conversion
 
-            if verbose: print("Time step " + str(t) + " completed")
+            progress_bar.next()
+
+        progress_bar.finish()
 
         # print output
         economy_df = pd.DataFrame(economy_model).T
         economy_df.to_excel(output_filename)
-
-        print_success('Employment distributions after ' + str(TIME_STEPS) + ' time steps written to "' + output_filename + '"')
-        print(OUTPUT_SECTION_END)
 
 
 def read_command():
@@ -87,9 +83,6 @@ def read_command():
     parser.add_argument('-a', '--all', dest='run_all',
                         default=False, action='store_true',
                         help='run the simulation for all MSAs')
-    parser.add_argument('-v', '--verbose', dest='verbose',
-                        default=False, action='store_true',
-                        help='run with verbose output')
 
     args = parser.parse_args()
 
