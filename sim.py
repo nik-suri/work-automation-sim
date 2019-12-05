@@ -37,17 +37,13 @@ def run_sim(msa_list):
             }
 
         progress_bar = Bar(msa, max=len(msa_df.index))
+
         # run simulation
         for i in msa_df.index: # for every job
             soc_code = msa_df['SOC_CODE'][i]
             growth_rate = msa_df['ANNUAL_MEAN_CHANGE'][i]
             automation_p = msa_df['AUTO_PROB'][i]
             for t in range(TIME_STEPS): # calculate every time step
-                """
-                ASSUMPTION:
-                THIS IS THE PROBABILITY THAT THE OCCUPATION WILL BE COMPLETELY AUTOMATED IN time_step YEARS
-                We will calculate a quadratic fit for this value to determine the number of jobs that should be converted after each year
-                """
                 adjusted_auto_p = (automation_p / TIME_STEPS ** 2) * t ** 2
 
                 job_data = economy_model[soc_code]
@@ -65,9 +61,10 @@ def run_sim(msa_list):
 
         progress_bar.finish()
 
-        # print output
+        # write output
         economy_df = pd.DataFrame(economy_model).T
         economy_df.to_excel(output_filename)
+        print_success('MSA results written to ' + OUTPUT_FILES)
 
 
 def read_command():

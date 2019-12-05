@@ -1,15 +1,28 @@
 RAW_FILES = 'raw_data_files/'
-RAW_EMPLOYMENT = 'oesm18ma/'
-RAW_PROJECTIONS = 'alltb6/'
+
+RAW_FREY_OSBORNE = RAW_FILES + 'frey_osborne_automation_susceptibility.xlsx'
+RAW_EMPLOYMENT = RAW_FILES + 'employment/'
+RAW_PROJECTIONS = RAW_FILES + 'projections/'
+
+RAW_EMPLOYMENT_MSA = RAW_EMPLOYMENT + 'oesm18ma/MSA_M2018_dl.xlsx'
+RAW_EMPLOYMENT_NAT = RAW_EMPLOYMENT + 'oesm18nat/national_M2018_dl.xlsx'
+
+RAW_PROJECTIONS_REGIONAL = RAW_PROJECTIONS + 'alltb6/'
+RAW_PROJECTIONS_NAT = RAW_PROJECTIONS + 'occupation.xlsx'
 
 CLEAN_FILES = 'clean_data_files/'
-CLEAN_EMPLOYMENT = 'employment/'
-CLEAN_PROJECTIONS = 'projections/'
-CLEAN_PROJECTIONS_REGIONAL = 'regional/'
-CLEAN_PROJECTIONS_MSA = 'msa/'
-CLEAN_MERGED = 'merged/'
+
+CLEAN_FREY_OSBORN = CLEAN_FILES + 'automation_susceptibility.xlsx'
+CLEAN_EMPLOYMENT = CLEAN_FILES + 'employment/'
+CLEAN_PROJECTIONS = CLEAN_FILES + 'projections/'
+CLEAN_MERGED = CLEAN_FILES + 'merged/'
+
+CLEAN_PROJECTIONS_REGIONAL = CLEAN_FILES + CLEAN_PROJECTIONS + 'regional/'
+CLEAN_PROJECTIONS_MSA = CLEAN_FILES + CLEAN_PROJECTIONS + 'msa/'
 
 OUTPUT_FILES = 'sim_outputs/'
+OUTPUT_MSA = OUTPUT_FILES + 'msa/'
+OUTPUT_NAT = OUTPUT_FILES + 'nat/'
 
 CA_MSA_MAP = {
     'Bakersfield, CA': ['bake$OccProj.xlsx'],
