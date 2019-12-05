@@ -19,8 +19,8 @@ def run_sim(msa_list):
 
     for msa in msa_list:
         msa_filename = msa + '.xlsx'
-        merged_filename = CLEAN_FILES + CLEAN_MERGED + msa_filename
-        output_filename = OUTPUT_FILES + msa_filename
+        merged_filename = CLEAN_MERGED_MSA + msa_filename
+        output_filename = OUTPUT_MSA + msa_filename
 
         msa_df = pd.read_excel(merged_filename)
 
@@ -36,7 +36,7 @@ def run_sim(msa_list):
                 'automated-0': 0
             }
 
-        progress_bar = Bar(msa, max=len(msa_df.index))
+        progress_bar = Bar(msa, max=len(msa_df.index), suffix='%(percent)d%%')
 
         # run simulation
         for i in msa_df.index: # for every job
@@ -64,7 +64,8 @@ def run_sim(msa_list):
         # write output
         economy_df = pd.DataFrame(economy_model).T
         economy_df.to_excel(output_filename)
-        print_success('MSA results written to ' + OUTPUT_FILES)
+
+    print_success('MSA results written to ' + OUTPUT_MSA)
 
 
 def read_command():
