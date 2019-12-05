@@ -15,6 +15,8 @@ def main():
 
 def run_sim(msa_list, verbose):
     for msa in msa_list:
+        print_header('Simulating ' + msa)
+
         msa_filename = msa + '.xlsx'
         merged_filename = CLEAN_FILES + CLEAN_MERGED + msa_filename
         output_filename = OUTPUT_FILES + msa_filename
@@ -53,23 +55,22 @@ def run_sim(msa_list, verbose):
 
                 job_data = economy_model[soc_code]
                 employed_key, automated_key = 'employed-' + str(t), 'automated-' + str(t)
-                curr_econ_size, curr_automated = job_data[employed_key], job_data[automated_key]
+                n_employed, n_automated = job_data[employed_key], job_data[automated_key]
 
-                new_econ_size = round((1 + growth_rate) * curr_econ_size)
-                automated_conversion = round(adjusted_auto_p * new_econ_size)
-                new_automated = curr_automated + automated_conversion
+                new_demand = round((1 + growth_rate) * (n_employed + n_automated))
+                automated_conversion = round(adjusted_auto_p * new_demand)
 
                 next_employed_key, next_automated_key = 'employed-' + str(t + 1), 'automated-' + str(t + 1)
-                job_data[next_employed_key] = new_econ_size - automated_conversion
-                job_data[next_automated_key] = new_automated
+                job_data[next_employed_key] = new_demand - automated_conversion
+                job_data[next_automated_key] = automated_conversion
 
-            print("Time step " + str(t) + " completed")
+            if verbose: print("Time step " + str(t) + " completed")
 
         # print output
         economy_df = pd.DataFrame(economy_model).T
         economy_df.to_excel(output_filename)
 
-        print_success('Final employment distributions after ' + str(TIME_STEPS) + ' time steps written to "' + output_filename + '"')
+        print_success('Employment distributions after ' + str(TIME_STEPS) + ' time steps written to "' + output_filename + '"')
         print(OUTPUT_SECTION_END)
 
 
