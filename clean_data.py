@@ -14,7 +14,7 @@ def main():
 
     if args.clean_prob: clean_prob()
 
-    if args.run_reg:
+    if args.run_msa:
         if args.clean_proj: clean_reg_proj()
         if args.clean_emp: clean_reg_emp()
         if args.merge: merge_reg()
@@ -252,7 +252,7 @@ def read_command():
     from argparse import ArgumentParser
 
     parser = ArgumentParser(description=('Clean data for the simulation.'
-                                         'Default behavior is to clean and merge all national-level and regional-level data files.'
+                                         'Default behavior is to clean and merge all national-level and regional/MSA-level data files.'
                                          'Use options to run only specified steps of the program.'))
 
     parser.add_argument('--clean-prob', dest='clean_prob',
@@ -270,9 +270,9 @@ def read_command():
     parser.add_argument('--nat', dest='run_nat',
                         default=False, action='store_true',
                         help='clean only national-level data files')
-    parser.add_argument('--reg', dest='run_reg',
+    parser.add_argument('--msa', dest='run_msa',
                         default=False, action='store_true',
-                        help='clean only regional-level data files')
+                        help='clean only regional/MSA-level data files')
 
     args = parser.parse_args()
 
@@ -283,10 +283,10 @@ def read_command():
         args.clean_emp = True
         args.merge = True
 
-    if all([not args.run_nat, not args.run_reg]):
-        print_warning('National/Regional-level cleaning not specified. Running with options set to clean both levels of data.')
+    if all([not args.run_nat, not args.run_msa]):
+        print_warning('National/MSA-level cleaning not specified. Running with options set to clean both levels of data.')
         args.run_nat = True
-        args.run_reg = True
+        args.run_msa = True
 
     return args
 
