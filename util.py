@@ -22,7 +22,7 @@ def print_success(succMsg):
 def print_warning(warnMsg):
     print(OutColors.WARNING + warnMsg + OutColors.ENDC)
 
-def print_err(errMsg):
+def print_error(errMsg):
     print(OutColors.FAIL + errMsg + OutColors.ENDC)
 
 class PercentBar(Bar):
