@@ -7,6 +7,57 @@ def main():
     args = read_command()
     print(args)
 
+    # merge all dfs together on SOC with only automated-10 column
+    # sort this in descending order
+    l = list(CA_MSA_MAP.keys())
+    merged_df = pd.read_excel(OUTPUT_MSA + l[0] + '.xlsx', index_col=0)[['automated-10']]
+    merged_df = merged_df.rename(columns={'automated-10': 'automated'})
+    for i in range(1, len(l)):
+        f = OUTPUT_MSA + l[i] + '.xlsx'
+        df = pd.read_excel(f, index_col=0)[['automated-10']]
+        df = df.rename(columns={'automated-10': 'automated'})
+        merged_df = merged_df.merge(df, left_index=True, right_index=True)
+        merged_df['automated'] = merged_df['automated_x'] + merged_df['automated_y']
+        del merged_df['automated_x']
+        del merged_df['automated_y']
+
+    sorted_df = merged_df.sort_values(by='automated', ascending=False).head(5)
+    print(sorted_df)
+
+    return
+
+    found = False
+    while not found:
+        low_p = p_df['SOC_CODE'][low_i]
+        mid_p = p_df['SOC_CODE'][mid_i]
+        high_p = p_df['SOC_CODE'][high_i]
+        if low_i >= high_i:
+            break
+        inner_found = True
+        for msa in CA_MSA_MAP.keys():
+            f = OUTPUT_MSA + msa + '.xlsx'
+            df = pd.read_excel(f, index_col=0)
+            if low_p not in df.index:
+                low_i += 1
+                inner_found = False
+                break
+            if mid_p not in df.index:
+                mid_i -= 1
+                inner_found = False
+                break
+            if high_p not in df.index:
+                high_i -= 1
+                inner_found = False
+                break
+        found = inner_found
+
+    print(found)
+    print(low_i, low_p)
+    print(mid_i, mid_p)
+    print(high_i, high_p)
+
+    return
+
     if args.nat:
         graph_national()
         if args.soc: graph_soc(args.soc)
