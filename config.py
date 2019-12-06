@@ -24,6 +24,10 @@ OUTPUT_FILES = 'sim_outputs/'
 OUTPUT_MSA = OUTPUT_FILES + 'msa/'
 OUTPUT_NAT = OUTPUT_FILES + 'national_output.xlsx'
 
+GRAPH_FILES = 'graphs/'
+GRAPH_NAT = GRAPH_FILES + 'national_graph'
+GRAPH_MSA = GRAPH_FILES + 'msa/'
+
 CA_MSA_MAP = {
     'Bakersfield, CA': ['bake$OccProj.xlsx'],
     'Chico, CA': ['chic$OccProj.xlsx'],

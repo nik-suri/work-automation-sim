@@ -250,8 +250,8 @@ def read_command():
     """
     from argparse import ArgumentParser
 
-    parser = ArgumentParser(description=('Clean data for the simulation.'
-                                         'Default behavior is to clean and merge all national-level and regional/MSA-level data files.'
+    parser = ArgumentParser(description=('Clean data for the simulation. '
+                                         'Default behavior is to clean and merge all national-level and regional/MSA-level data files. '
                                          'Use options to run only specified steps of the program.'))
 
     parser.add_argument('--clean-prob', dest='clean_prob',
