@@ -1,4 +1,7 @@
-*.png
+raw_data_files/
+clean_data_files/
+sim_outputs/
+graphs/
 *.xlsx
 *.swp
 *.spec
