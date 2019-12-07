@@ -6,7 +6,6 @@ from util import *
 
 def main():
     args = read_command()
-    print(args)
 
     opts = {
         'save': args.save,
