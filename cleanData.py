@@ -64,16 +64,16 @@ def clean_nat_emp():
     progress_bar = PercentBar('Employment', max=3)
 
     # clean employment data
-    msa_employment_df = pd.read_excel(RAW_EMPLOYMENT_NAT)
+    nat_employment_df = pd.read_excel(RAW_EMPLOYMENT_NAT)
     progress_bar.next()
 
-    msa_filtered = msa_employment_df[['OCC_CODE', 'TOT_EMP', 'OCC_TITLE']]
+    nat_filtered = nat_employment_df[['OCC_CODE', 'TOT_EMP', 'OCC_TITLE']]
     progress_bar.next()
 
-    msa_cleaned = msa_filtered.rename(columns={'OCC_CODE': 'SOC_CODE'})
+    nat_cleaned = nat_filtered.rename(columns={'OCC_CODE': 'SOC_CODE'})
     progress_bar.next()
 
-    msa_cleaned.to_excel(CLEAN_EMPLOYMENT_NAT, index=False)
+    nat_cleaned.to_excel(CLEAN_EMPLOYMENT_NAT, index=False)
     progress_bar.finish()
 
 
@@ -163,7 +163,9 @@ def clean_reg_emp():
     print_header('Cleaning MSA employment data')
 
     # clean employment data
+    print_warning('Reading MSA employment data...')
     msa_employment_df = pd.read_excel(RAW_EMPLOYMENT_MSA)
+
     for msa in CA_MSA_MAP.keys():
         progress_bar = PercentBar(msa, max=4)
 
