@@ -14,6 +14,8 @@ def main():
         'display': args.display
     }
 
+    print_header('Graphing Data')
+
     if args.nat:
         in_f = OUTPUT_NAT
         out_f = GRAPH_NAT
@@ -29,13 +31,14 @@ def main():
         graph(in_f, out_f, displayName, soc_path, args.socs, opts)
 
 
-def graph_socs(in_df, soc_path, socs, opts):
+def graph_socs(in_df, soc_path, socs, opts, progress_bar):
     df = in_df.copy()
 
     for soc in socs:
         if soc not in df.index:
             print(OUTPUT_ERROR)
             print_error(soc + ' not found')
+            progress_bar.next()
             continue
 
         # compute the aggregation for this SOC - extract the row we want
@@ -56,10 +59,12 @@ def graph_socs(in_df, soc_path, socs, opts):
         if opts['scale']:
             ax.set_ylim(0, opts.scale)
         if opts['save']:
-            ax.get_figure().savefig(soc_path + soc_row['title'][0])
+            ax.get_figure().savefig(soc_path + soc)
         if opts['display']:
             plt.show()
         plt.close()
+
+        progress_bar.next()
 
 def graph_aggregate(in_df, output_filename, displayName, opts):
     df = in_df.copy()
@@ -89,9 +94,16 @@ def graph_aggregate(in_df, output_filename, displayName, opts):
 
 
 def graph(in_f, out_f, displayName, soc_path, socs, opts):
+    progress_bar = PercentBar(displayName, max=2+len(socs))
+
     df = pd.read_excel(in_f, index_col=0)
+    progress_bar.next()
+
     graph_aggregate(df, out_f, displayName, opts)
-    graph_socs(df, soc_path, socs, opts)
+    progress_bar.next()
+
+    graph_socs(df, soc_path, socs, opts, progress_bar)
+    progress_bar.finish()
 
 
 def read_command():
