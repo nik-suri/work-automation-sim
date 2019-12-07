@@ -26,7 +26,7 @@ OUTPUT_NAT = OUTPUT_FILES + 'national_output.xlsx'
 
 GRAPH_FILES = 'graphs/'
 GRAPH_NAT = GRAPH_FILES + 'national_graph'
-GRAPH_MSA = GRAPH_FILES + 'msas/'
+GRAPH_MSA = GRAPH_FILES + 'msa/'
 GRAPH_SOC = GRAPH_FILES + 'occupations/'
 GRAPH_SOC_NAT = GRAPH_SOC + 'national/'
 
