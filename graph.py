@@ -9,7 +9,7 @@ def main():
 
     opts = {
         'save': args.save,
-        'scale': args.scale,
+        'ylim': args.ylim,
         'display': args.display
     }
 
@@ -55,8 +55,8 @@ def graph_socs(in_df, soc_path, socs, opts, progress_bar):
         ax.set_title(soc + ': ' + soc_row['title'][0])
         ax.get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,}".format(int(x))))
 
-        if opts['scale']:
-            ax.set_ylim(0, opts['scale'])
+        if opts['ylim']:
+            ax.set_ylim(0, int(opts['ylim']))
         if opts['save']:
             ax.get_figure().savefig(soc_path + soc)
         if opts['display']:
@@ -83,8 +83,8 @@ def graph_aggregate(in_df, output_filename, displayName, opts):
     ax.set_title(displayName)
     ax.get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,}".format(int(x))))
 
-    if opts['scale']:
-        ax.set_ylim(0, opts['scale'])
+    if opts['ylim']:
+        ax.set_ylim(0, int(opts['ylim']))
     if opts['save']:
         ax.get_figure().savefig(output_filename)
     if opts['display']:
@@ -140,10 +140,10 @@ def read_command():
     parser.add_argument('--no-save', dest='save',
                         default=True, action='store_false',
                         help='Do not save graphs to ' + GRAPH_FILES)
-    parser.add_argument('--scale', dest='scale',
+    parser.add_argument('--ylim', dest='ylim',
                         default=None, action='store',
-                        help=('set the y-axis scale limit for graphs. '
-                              'Default is to auto-scale graphs'))
+                        help=('set the y-axis limit for graphs. '
+                              'Default is to auto-scale each graph'))
     parser.add_argument('--no-display', dest='display',
                         default=True, action='store_false',
                         help='Do not display graphs as they are computed')
