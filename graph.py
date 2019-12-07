@@ -56,7 +56,7 @@ def graph_socs(in_df, soc_path, socs, opts, progress_bar):
         ax.get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,}".format(int(x))))
 
         if opts['scale']:
-            ax.set_ylim(0, opts.scale)
+            ax.set_ylim(0, opts['scale'])
         if opts['save']:
             ax.get_figure().savefig(soc_path + soc)
         if opts['display']:
@@ -84,7 +84,7 @@ def graph_aggregate(in_df, output_filename, displayName, opts):
     ax.get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,}".format(int(x))))
 
     if opts['scale']:
-        ax.set_ylim(0, opts.scale)
+        ax.set_ylim(0, opts['scale'])
     if opts['save']:
         ax.get_figure().savefig(output_filename)
     if opts['display']:
