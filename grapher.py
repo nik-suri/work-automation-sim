@@ -8,26 +8,38 @@ def main():
     args = read_command()
     print(args)
 
+    opts = {
+        'save': args.save,
+        'scale': args.scale,
+        'display': args.display
+    }
+
     if args.nat:
-        graph_national(args.socs)
+        in_f = OUTPUT_NAT
+        out_f = GRAPH_NAT
+        displayName = 'National Employment'
+        soc_path = GRAPH_SOC_NAT
+        graph(in_f, out_f, displayName, soc_path, args.socs, opts)
 
-    graph_msa(args.msas, args.socs)
+    for msa in args.msas:
+        in_f = OUTPUT_MSA + msa + '.xlsx'
+        out_f = GRAPH_MSA + msa
+        displayName = msa + ' Employment'
+        soc_path = GRAPH_SOC + msa + '/'
+        graph(in_f, out_f, displayName, soc_path, args.socs, opts)
 
 
-def graph_soc(socs, input_filename, output_filename):
-
-        if args.soc: graph_soc(args.soc, GRAPH_NAT_SOC + soc_row['title'][0])
-    df = pd.read_excel(input_filename, index_col=0)
+def graph_socs(in_df, soc_path, socs, opts):
+    df = in_df.copy()
 
     for soc in socs:
         if soc not in df.index:
             print(OUTPUT_ERROR)
-            print_error(soc + ' not found in ' + input_filename)
+            print_error(soc + ' not found')
             continue
 
         # compute the aggregation for this SOC - extract the row we want
         soc_row = df.loc[[soc]]
-        print(soc_row)
 
         employed_keys = ['employed-' + str(i) for i in range(11)]
         automated_keys = ['automated-' + str(i) for i in range(11)]
@@ -39,14 +51,18 @@ def graph_soc(socs, input_filename, output_filename):
 
         ax = df_growth.plot.area()
         ax.set_title(soc + ': ' + soc_row['title'][0])
-        ax.set_ylim(0,175000)
         ax.get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,}".format(int(x))))
-        ax.get_figure().savefig(output_filename)
-        plt.show()
 
+        if opts['scale']:
+            ax.set_ylim(0, opts.scale)
+        if opts['save']:
+            ax.get_figure().savefig(soc_path + soc_row['title'][0])
+        if opts['display']:
+            plt.show()
+        plt.close()
 
-def graph_aggregate(input_filename, output_filename, displayName):
-    df = pd.read_excel(input_filename, index_col=0)
+def graph_aggregate(in_df, output_filename, displayName, opts):
+    df = in_df.copy()
 
     del df['title']
     s = df.sum()
@@ -61,21 +77,21 @@ def graph_aggregate(input_filename, output_filename, displayName):
 
     ax = df_growth.plot.area()
     ax.set_title(displayName)
-    ax.get_figure().savefig(output_filename)
-    plt.show()
+    ax.get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,}".format(int(x))))
+
+    if opts['scale']:
+        ax.set_ylim(0, opts.scale)
+    if opts['save']:
+        ax.get_figure().savefig(output_filename)
+    if opts['display']:
+        plt.show()
+    plt.close()
 
 
-def graph_msa(msas, socs):
-    for msa in msas:
-        in_f = OUTPUT_MSA + msa + '.xlsx'
-        out_f = GRAPH_MSA + msa
-        graph_aggregate(in_f, out_f, msa + ' Employment')
-        graph_socs(socs)
-
-
-def graph_national(socs):
-    graph_aggregate(OUTPUT_NAT, GRAPH_NAT, 'National Employment')
-    graph_socs(socs)
+def graph(in_f, out_f, displayName, soc_path, socs, opts):
+    df = pd.read_excel(in_f, index_col=0)
+    graph_aggregate(df, out_f, displayName, opts)
+    graph_socs(df, soc_path, socs, opts)
 
 
 def read_command():
@@ -84,14 +100,17 @@ def read_command():
     """
     from argparse import ArgumentParser
 
-    parser = ArgumentParser(description=('Graph data output by the simulation. '
+    parser = ArgumentParser(description=('Graph data computed by the simulation. '
                                          'Default behavior is to graph everything, save it to '
                                          + GRAPH_FILES +
-                                         ', and not display the files upon completion. '
+                                         ', and not display the files as each is completed. '
                                          'Use options to specify what to graph. '
                                          'Use the --soc option to clarify which '
                                          'occupations to graph at a given level of '
-                                         'granularity.'))
+                                         'granularity. use the --msa option to clarify '
+                                         'which MSAs to graph. Alternatively, pass the '
+                                         '--all-msa or --all-soc flags to graph all MSAs '
+                                         'and all SOCs, respectively.'))
 
     parser.add_argument('--nat', dest='nat',
                         default=False, action='store_true',
@@ -107,13 +126,16 @@ def read_command():
     parser.add_argument('--all-soc', dest='all_soc',
                         default=False, action='store_true',
                         help='graph all occupations')
-    parser.add_argument('--save', dest='save',
-                        default=False, action='store_true',
-                        help='save files to ' + GRAPH_FILES)
+    parser.add_argument('--no-save', dest='save',
+                        default=True, action='store_false',
+                        help='Do not save graphs to ' + GRAPH_FILES)
     parser.add_argument('--scale', dest='scale',
-                        default=-1, action='store',
+                        default=None, action='store',
                         help=('set the y-axis scale limit for graphs. '
-                              'Default is to auto-scale graphs.'))
+                              'Default is to auto-scale graphs'))
+    parser.add_argument('--no-display', dest='display',
+                        default=True, action='store_false',
+                        help='Do not display graphs as they are computed')
 
     args = parser.parse_args()
 
